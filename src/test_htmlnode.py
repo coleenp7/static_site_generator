@@ -1,19 +1,24 @@
 import unittest
 
 from htmlnode import *
+from independent_functions import *
+from textnode import *
 
 
 class TestHTMLNode(unittest.TestCase):
+    #basic node test
     def test_eq(self):
         node = HTMLNode("p", "This is a test.")
         node2 = HTMLNode("p", "This is a test.")
         self.assertEqual(node, node2)
 
+    #basic node test
     def test_not_eq(self):
         node = HTMLNode("p", "This is a test.")
         node2 = HTMLNode("p", "The borg are coming")
         self.assertNotEqual(node, node2)
     
+    #conversion test
     def test_leaf_to_html_p(self):
         node = LeafNode("p", "Hello, world!")
         self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
@@ -38,11 +43,13 @@ class TestHTMLNode(unittest.TestCase):
         with self.assertRaises(ValueError):
             LeafNode("p", None).to_html()
 
+    #node function testing with children
     def test_to_html_with_children(self):
         child_node = LeafNode("span", "child")
         parent_node = ParentNode("div", [child_node])
         self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
 
+    #node function testing with grandchildren
     def test_to_html_with_grandchildren(self):
         grandchild_node = LeafNode("b", "grandchild")
         child_node = ParentNode("span", [grandchild_node])
@@ -52,6 +59,7 @@ class TestHTMLNode(unittest.TestCase):
             "<div><span><b>grandchild</b></span></div>",
         )
 
+    #node function testing nesting
     def test_to_html_many_children(self):
         node = ParentNode(
             "p",
@@ -67,6 +75,7 @@ class TestHTMLNode(unittest.TestCase):
             "<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>",
         )
 
+    #node function testing new formats
     def test_headings(self):
         node = ParentNode(
             "h2",

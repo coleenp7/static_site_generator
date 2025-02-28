@@ -1,9 +1,12 @@
 import unittest
 
 from textnode import *
+from independent_functions import *
+from htmlnode import *
 
 
 class TestTextNode(unittest.TestCase):
+    
     def test_eq(self):
         node = TextNode("This is a text node", TextType.BOLD)
         node2 = TextNode("This is a text node", TextType.BOLD)
@@ -50,7 +53,7 @@ class TestTextNode(unittest.TestCase):
     def test_multiple_delimiter(self):
         nodes = [TextNode("hello `world` and `python`", TextType.NORMAL)]
         result = split_nodes_delimiter(nodes, "`", TextType.CODE)
-        assert len(result) == 5
+        assert len(result) == 4
         assert result[0].text == "hello "
         assert result[0].text_type == TextType.NORMAL
         assert result[1].text == "world"
@@ -59,9 +62,7 @@ class TestTextNode(unittest.TestCase):
         assert result[2].text_type == TextType.NORMAL
         assert result[3].text == "python"
         assert result[3].text_type == TextType.CODE
-        assert result[4].text == ""
-        assert result[4].text_type == TextType.NORMAL
-
+    
     def test_empty_content(self):
         nodes = [TextNode("hello `` world", TextType.NORMAL)]
         result = split_nodes_delimiter(nodes, "`", TextType.CODE)
@@ -131,13 +132,101 @@ class TestTextNode(unittest.TestCase):
     def simple_markdown(self):
         text = "![test](example.com)"
         result = extract_markdown_images(text)
-        print(result)
 
     def test_extract_markdown_links(self):
         matches = extract_markdown_links(
         "This is text with a [link to somewhere](https://example.com)"
         )
         self.assertListEqual([("link to somewhere", "https://example.com")], matches)
+
+    
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.NORMAL,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.NORMAL),
+                TextNode("image", TextType.IMAGES, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.NORMAL),
+                TextNode(
+                    "second image", TextType.IMAGES, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )
+    
+
+
+    def test_delim_bold(self):
+        node = TextNode("This is text with a **bolded** word", TextType.NORMAL)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", TextType.NORMAL),
+                TextNode("bolded", TextType.BOLD),
+                TextNode(" word", TextType.NORMAL),
+            ],
+            new_nodes,
+        )
+  
+    def test_delim_bold_double(self):
+        node = TextNode(
+            "This is text with a **bolded** word and **another**", TextType.NORMAL
+        )
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", TextType.NORMAL),
+                TextNode("bolded", TextType.BOLD),
+                TextNode(" word and ", TextType.NORMAL),
+                TextNode("another", TextType.BOLD),
+            ],
+            new_nodes,
+        )
+    
+    def test_delim_bold_multiword(self):
+        node = TextNode(
+            "This is text with a **bolded word** and **another**", TextType.NORMAL
+        )
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", TextType.NORMAL),
+                TextNode("bolded word", TextType.BOLD),
+                TextNode(" and ", TextType.NORMAL),
+                TextNode("another", TextType.BOLD),
+            ],
+            new_nodes,
+        )
+
+    def test_delim_italic(self):
+        node = TextNode("This is text with an _italic_ word", TextType.NORMAL)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.NORMAL),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word", TextType.NORMAL),
+            ],
+            new_nodes,
+        )
+
+    def test_delim_bold_and_italic(self):
+        node = TextNode("**bold** and _italic_", TextType.NORMAL)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        new_nodes = split_nodes_delimiter(new_nodes, "_", TextType.ITALIC)
+        self.assertEqual(
+            [
+                TextNode("bold", TextType.BOLD),
+                TextNode(" and ", TextType.NORMAL),
+                TextNode("italic", TextType.ITALIC),
+            ],
+            new_nodes,
+        )
+    
 
 if __name__ == "__main__":
     unittest.main()
