@@ -95,3 +95,52 @@ def text_to_textnodes(text):
     nodes = split_nodes_image(nodes)
     nodes = split_nodes_link(nodes)
     return nodes
+
+def markdown_to_blocks(markdown):
+    results = []
+    markdown = markdown.strip() 
+    temp = temp = markdown.split("\n\n")
+    for string in temp:
+        var = "\n".join([line.strip() for line in string.splitlines()])
+        if var:
+            results.append(var)
+
+    return results
+
+def block_to_block_type(block):
+    lines = block.split("\n")
+
+    if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
+        return BlockType.HEADING
+    
+    if lines[0].startswith("```") and lines[-1].endswith("```"):
+        return BlockType.CODE
+    
+    if block.startswith(">"):
+        for line in lines:
+            if not line.startswith(">"):
+                return BlockType.PARAGRAPH
+        return BlockType.QUOTE
+    
+    if block.startswith("- "):
+        for line in lines:
+            if not line.startswith("- "):
+                return BlockType.PARAGRAPH
+        return BlockType.UNORDERED_LIST
+    
+    if block.startswith("1. "):
+        i = 1
+        for line in lines:
+            if not line.startswith(f"{i}. "):
+                return BlockType.PARAGRAPH
+            i += 1
+        return BlockType.ORDERED_LIST
+    
+    return BlockType.PARAGRAPH
+
+'''
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        type = block_to_block_type(block)'
+        '''

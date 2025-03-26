@@ -226,7 +226,42 @@ class TestTextNode(unittest.TestCase):
             ],
             new_nodes,
         )
-    
 
+    def test_markdown_to_blocks(self):
+        md  = """
+        This is **bolded** paragraph
+
+        This is another paragraph with _italic_ text and `code` here
+        This is the same paragraph on a new line
+
+        - This is a list
+        - with items
+        """
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )   
+    def test_block_to_blocktype_heading(self):
+        self.assertEqual(block_to_block_type("## I am a heading"), BlockType.HEADING) 
+    
+    def test_block_to_blocktype_quote(self):
+        self.assertEqual(block_to_block_type("> I am a quote"), BlockType.QUOTE) 
+    
+    def test_block_to_blocktype_code(self):
+        self.assertEqual(block_to_block_type("```I am code```"), BlockType.CODE)
+
+    def test_block_to_blocktype_unordered_list(self):
+        self.assertEqual(block_to_block_type("- I am a list item"), BlockType.UNORDERED_LIST)
+
+    def test_block_to_blocktype_ordered_list(self):
+        self.assertEqual(block_to_block_type("1. I am item 1"), BlockType.ORDERED_LIST)
+
+    def test_block_to_blocktype_paragraph(self):
+        self.assertEqual(block_to_block_type("I am just plain text"), BlockType.PARAGRAPH)    
 if __name__ == "__main__":
     unittest.main()

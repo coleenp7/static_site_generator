@@ -11,6 +11,14 @@ class TextType(Enum):
     LINKS = "Links, in this format: [anchor text](url)"
     IMAGES = "Images, in this format: ![alt text](url)"
 
+class BlockType(Enum):
+    PARAGRAPH = "Paragraph"
+    HEADING = "Headings start with 1-6 # characters, followed by a space and then the heading text"
+    CODE = "Code blocks must start with 3 backticks and end with 3 backticks"
+    QUOTE = "Every line in a quote block must start with a > character."
+    UNORDERED_LIST = "Every line in an unordered list block must start with a - character, followed by a space."
+    ORDERED_LIST = "Every line in an ordered list block must start with a number followed by a . character and a space. The number must start at 1 and increment by 1 for each line."
+
 class TextNode:
     def __init__(self, text, text_type, url=None):
         self.text = text 
