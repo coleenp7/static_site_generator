@@ -33,7 +33,8 @@ class TextNode:
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
     
-    def text_node_to_html_node(self):
+    #assigning types/converting
+    def to_html_node(self):
         if not isinstance(self.text_type, TextType):
             raise Exception("Invalid text type in textnode")
         elif self.text_type == TextType.LINKS:
